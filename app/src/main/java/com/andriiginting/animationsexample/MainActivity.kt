@@ -5,6 +5,7 @@ import android.animation.ValueAnimator
 import android.graphics.Color
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.view.animation.Animation
@@ -14,6 +15,9 @@ import android.view.animation.Animation.REVERSE
 import android.view.animation.RotateAnimation
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
+import com.airbnb.lottie.LottieCompositionFactory
+import com.airbnb.lottie.LottieProperty
+import com.airbnb.lottie.model.KeyPath
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.content_main.*
 
@@ -29,7 +33,7 @@ class MainActivity : AppCompatActivity() {
         //change color animations, call changeViewColor()
         //change color animations, call changeColorObjectAnimator()
 
-        changeColorObjectAnimator()
+        compositionLottie()
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
@@ -84,6 +88,52 @@ class MainActivity : AppCompatActivity() {
             repeatMode = ValueAnimator.REVERSE
             start()
         }
+    }
+
+    private fun playLottieAnimations(){
+        ivOjolAnimations.apply {
+            setAnimation("ojol_ijo.json")
+            repeatCount = INFINITE
+            playAnimation()
+        }.resolveKeyPath(KeyPath("**")).forEach {
+            Log.d("KeyPath-ojol","$it")
+        }
+    }
+
+    private fun compositionLottie(){
+        val composition = LottieCompositionFactory.fromAsset(this, "ojol_ijo.json")
+        composition.addListener { result ->
+            ivOjolAnimations.apply {
+                setComposition(result)
+                repeatCount = INFINITE
+                addValueCallback(
+                    KeyPath("**", "Fill 1"),
+                    LottieProperty.COLOR, { Color.CYAN }
+                )
+                playAnimation()
+            }
+        }
+    }
+
+    private fun updateSingleProperty(){
+        ivOjolAnimations.addValueCallback(
+            KeyPath("White Solid 2"),
+            LottieProperty.COLOR, { Color.CYAN }
+        )
+    }
+
+    private fun updateWildCardProperty(){
+        ivOjolAnimations.addValueCallback(
+            KeyPath("*", "Shape Layer 1", "Shape 1", "Fill 1"),
+            LottieProperty.COLOR, { Color.CYAN }
+        )
+    }
+
+    private fun updateGlobstarProperty(){
+        ivOjolAnimations.addValueCallback(
+            KeyPath("**", "Fill 1"),
+            LottieProperty.COLOR, { Color.CYAN }
+        )
     }
 
     private fun applyAnimations(animations: Animation) {
